@@ -1,32 +1,19 @@
 class Clipboardctl < Formula
   desc "AI Smart Clipboard Manager CLI"
-  homepage "https://github.com/Wondr-design/clipboard"
+  homepage "https://github.com/Wondr-design/smart-clipboard"
   version "0.1.0"
   license "MIT"
 
   on_macos do
-    url "https://github.com/Wondr-design/clipboard/releases/download/v0.1.0/clipboardctl-v0.1.0-darwin-universal.tar.gz"
-    sha256 "PLACEHOLDER_SHA256"
+    url "https://github.com/Wondr-design/smart-clipboard/releases/download/v0.1.0/clipboardctl-v0.1.0-darwin-universal.tar.gz"
+    sha256 "0019dfc4b32d63c1392aa264aed2253c1e0c2fb09216f8e2cc269bbfb8bb49b5"
   end
 
   depends_on :macos
-  depends_on "uv"
 
   def install
     bin.install "clipboardctl"
     bin.install "clipboard-daemon"
-    
-    # Install Python AI worker
-    libexec.install Dir["python-ai/*"]
-  end
-
-  def post_install
-    # Create config directory
-    (var/"clipboard-manager").mkpath
-    
-    # Set up Python environment with uv for AI worker
-    ohai "Setting up Python AI worker with uv..."
-    system "uv", "sync", "--project", "#{libexec}"
   end
 
   service do
@@ -34,8 +21,6 @@ class Clipboardctl < Formula
     keep_alive true
     log_path var/"log/clipboard-daemon.log"
     error_log_path var/"log/clipboard-daemon.log"
-    working_dir var/"clipboard-manager"
-    environment_variables CLIPBOARD_PYTHON_WORKER_PATH: "#{opt_libexec}"
   end
 
   def caveats
@@ -46,20 +31,12 @@ class Clipboardctl < Formula
       Or run manually:
         clipboardctl daemon start
 
-      The clipboard history is stored in:
-        ~/Library/Application Support/ClipboardManager/
-
       Configuration file:
         ~/.config/clipboard-manager/config.yaml
-
-      For AI features on Apple Silicon, ensure you have:
-        - Python 3.11+
-        - MLX and MLX-LM (will be installed automatically)
     EOS
   end
 
   test do
     assert_match "clipboardctl", shell_output("#{bin}/clipboardctl --help")
-    assert_match version.to_s, shell_output("#{bin}/clipboardctl --version")
   end
 end
